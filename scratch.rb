@@ -6,7 +6,7 @@ def find_days(buy_sell_days)
   reversed_days = buy_sell_days.reverse
   differences = {} # save the difference between the next sell date with the current sale date
   biggest_differences = {}
-  # buy_sell_r = []
+  buy_sell_r = []
   # buy_sell = []
 
   # + + + + + REVERSED DAYS ARRAY LOOP + + + + + +
@@ -31,18 +31,29 @@ def find_days(buy_sell_days)
   # pp "differences updated at end of both loops: #{differences}"
 
   # + + + + + DIFFERENCES HASH LOOP + + + + + +
-pp differences
+  # pp differences
   differences.each do |key, value|
       # pp "values for key: #{key} and values: #{value}"
       # pp "key: #{key} and value: #{value[0][0]}"
     highest_day = value.max_by do |arrays| # find the nested array with the highest value at index 0 to find the best sell day
       arrays[0]
     end
-    pp "day #{key} highest sale value and day: #{highest_day}"
+    # pp "day #{key} highest sale value and day: #{highest_day}"
     biggest_differences[key] = highest_day
   end
 
   pp "biggest_differences hash: #{biggest_differences}"
+  
+  biggest_value = biggest_differences.values.max
+  pp "biggest_value: #{biggest_value}"
+
+  sell_day = biggest_value.drop(1)
+
+  key_for_biggest_V = biggest_differences.key(biggest_value)
+  pp "key for value: #{key_for_biggest_V}"
+
+  buy_sell_r = [key_for_biggest_V, sell_day]
+  pp buy_sell_r.flatten
 
 
 end # find_days method end

@@ -206,46 +206,6 @@ There. It's messy, inelegant, it might not work, but I got all the way through. 
 
 Okay. Now I'm going to make and eat dinner, and when I come back, I'll look this over with fresh eyes and see if this holds water. Once I'm done tweaking this, I'll start thinking about how to solve my black box problems, as well as experiment in `scratch.rb` to make sure I can remember how to Ruby and see if loops, arrays, and hashes work as I expect/remember them to.
 
-### Scratch.rb mess:
-
-```ruby
-days = [17, 3, 6, 9, 15, 8, 6, 1, 10]
-
-def find_days(buy_sell_days)
-  reversed_days = buy_sell_days.reverse
-  differences = {}
-  # biggest_differences = {}
-  # buy_sell_r = []
-  # buy_sell = []
-
-  reversed_days.each_with_index do |price_i, i |
-    differences[i] = []
-    reversed_days.each_with_index do |price_j, j|
-      if j.zero?
-        next #prevent comparing day 1 to day 1
-      end
-      # p "day #{i}: price $#{price_i} and day #{j}: price $#{price_j} "
-
-      difference = (price_i - price_j)
-      p "day #{i} and day #{j} difference: $#{difference}"
-
-      differences[i] << [difference, j]
-      # differences[:i] += [difference, j]
-    end
-  end
-  pp "hash: #{differences}"
-
-  differences.for_each {|i| i.find_max}
-end
-
-# Pairs experiment, doesn't work because I can't add them to the hash the way I want to
-#   pairs = []
-#   reversed_days.combination(2) {|combo| pairs.push(combo)}
-# p pairs
-
-find_days(days)
-```
-
 **Problem: Iterate over each hash key's values to find the nested array with the highest value at index 0**
 This will find the best sale day for each key in the hash. Again, the key represents each buy date from the reversed array.
 
@@ -309,9 +269,54 @@ output:
 **Problem: Find the biggest difference value from the biggest_differences hash**
 Now all I have to do is find the best buy/sell dates by identifying the biggest value at index 0 across all the keys.
 
+goal:
+
 1. Iterate through `biggest_differences` hash
 2. identify best sale date (must be key 8, value 16, 1)
 3. push best sale date data to `buy_sell_r`
+
+I expect this shouldn't be too dissimilar to what I did with the `differences` hash.
+
+For reference, the biggest_differences hash is:
+
+```ruby
+{
+  0 => [9, 1], 1 => [0, 1], 2 => [5, 1], 3 => [7, 1], 4 => [14, 1], 5 => [8, 1], 6 => [5, 1], 7 => [2, 1], 8 => [16, 1]
+  }
+```
+
+So now all I have to do is save whichever key/value pair has the largest value at index 0.
+
+Reference: [StackOverflow: find key by value](https://stackoverflow.com/questions/3794039/how-to-find-a-hash-key-containing-a-matching-value)
+
+Ok so I managed to figure out that I can use `#values#max` with `biggest_differences` to arrive at `[16, 1]`.
+
+I also found out I can find the key by the value, so I saved it to biggest_value and used `hash#key(biggest_value)`. No problem!
+
+Now I have the biggest value and the associated key.
+
+I pushed them to the array I made in advance using `buy_sell_r = [key_for_biggest_V, biggest_value]`
+
+But I realized that I don't need the biggest difference value in the final product, so I should only push the value at index 1.
+
+all put together:
+
+```ruby
+  biggest_value = biggest_differences.values.max
+  pp "biggest_value: #{biggest_value}"
+  # "biggest_value: [16, 1]"
+
+
+  sell_day = biggest_value.drop(1)
+
+  key_for_biggest_V = biggest_differences.key(biggest_value)
+  pp "key for value: #{key_for_biggest_V}"
+  # "key for value: 8"
+
+  buy_sell_r = [key_for_biggest_V, sell_day]
+  pp buy_sell_r.flatten
+  # [8, 1]
+```
 
 ## Struggle list / lessons learned
 
