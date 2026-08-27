@@ -10,24 +10,29 @@ def find_days(buy_sell_days)
   # buy_sell = []
 
   # + + + + + REVERSED DAYS ARRAY LOOP + + + + + +
-  
+
   reversed_days.each_with_index do |price_i, i|
-    differences[i] = []
+    differences[i] = [] unless i == reversed_days.length - 1
+    next if i == (reversed_days.length - 1) # prevent calculating last index with nothing
+
     reversed_days.each_with_index do |price_j, j|
-      if j.zero?
-        next # prevent comparing day 1 to day 1
-      end
-      # pp "day #{i}: price $#{price_i} and day #{j}: price $#{price_j} "
+      next if j <= i # prevent comparing day 1 to day 1
+
+      # pp "day #{i}: closed at $#{price_i} and day #{j}: closed at $#{price_j}"
 
       difference = (price_i - price_j)
-      # pp "day #{i} and day #{j} difference: $#{difference}"
-
+      #  pp "#{price_i} - #{price_j} = #{difference}"
+      #  pp "day #{i} and day #{j} difference: $#{difference}"
+      differences[i] << [difference, j] if i != (reversed_days.length - 1)
+      # pp differences
       # differences[:i] += [difference, j]
-      differences[i] << [difference, j]
-      # pp "added #{difference} and #{j} to differences"
-    end
+      # differences.except([])
+      # pp "added #{difference} and j index #{j} to differences"
+    end # end of reversed_days.each_with_index do |price_j, j|
+
       # pp "differences updated at end of both loop j: #{differences}"
-  end
+  end # end of reversed_days.each_with_index do |price_i, i|
+
   # pp "differences updated at end of both loops: #{differences}"
 
   # + + + + + DIFFERENCES HASH LOOP + + + + + +
@@ -35,15 +40,15 @@ def find_days(buy_sell_days)
   differences.each do |key, value|
       # pp "values for key: #{key} and values: #{value}"
       # pp "key: #{key} and value: #{value[0][0]}"
-    highest_day = value.max_by do |arrays| # find the nested array with the highest value at index 0 to find the best sell day
+    highest_day = value.max_by do |arrays| # find highest value at index 0 to find the best sell day
       arrays[0]
     end
     # pp "day #{key} highest sale value and day: #{highest_day}"
     biggest_differences[key] = highest_day
   end
 
-  pp "biggest_differences hash: #{biggest_differences}"
-  
+  # pp "biggest_differences hash: #{biggest_differences}"
+
   biggest_value = biggest_differences.values.max
   pp "biggest_value: #{biggest_value}"
 
@@ -55,6 +60,8 @@ def find_days(buy_sell_days)
   buy_sell_r = [key_for_biggest_V, sell_day]
   pp buy_sell_r.flatten
 
+  # + + + Return the correct days (indexes) from the original array + + + +
+  # pp "reversed days: #{reversed_days}"
 
 end # find_days method end
 

@@ -206,7 +206,8 @@ There. It's messy, inelegant, it might not work, but I got all the way through. 
 
 Okay. Now I'm going to make and eat dinner, and when I come back, I'll look this over with fresh eyes and see if this holds water. Once I'm done tweaking this, I'll start thinking about how to solve my black box problems, as well as experiment in `scratch.rb` to make sure I can remember how to Ruby and see if loops, arrays, and hashes work as I expect/remember them to.
 
-**Problem: Iterate over each hash key's values to find the nested array with the highest value at index 0**
+### Problem: Iterate over each hash key's values to find the nested array with the highest value at index 0
+
 This will find the best sale day for each key in the hash. Again, the key represents each buy date from the reversed array.
 
 goal:
@@ -266,7 +267,8 @@ output:
 "biggest_differences hash: {0 => [9, 1], 1 => [0, 1], 2 => [5, 1], 3 => [7, 1], 4 => [14, 1], 5 => [8, 1], 6 => [5, 1], 7 => [2, 1], 8 => [16, 1]}"
 ```
 
-**Problem: Find the biggest difference value from the biggest_differences hash**
+### Problem: Find the biggest difference value from the biggest_differences hash
+
 Now all I have to do is find the best buy/sell dates by identifying the biggest value at index 0 across all the keys.
 
 goal:
@@ -306,7 +308,6 @@ all put together:
   pp "biggest_value: #{biggest_value}"
   # "biggest_value: [16, 1]"
 
-
   sell_day = biggest_value.drop(1)
 
   key_for_biggest_V = biggest_differences.key(biggest_value)
@@ -317,6 +318,199 @@ all put together:
   pp buy_sell_r.flatten
   # [8, 1]
 ```
+
+### Problem: Find the same best buy/sell dates from original array, then return them
+
+We are working from the reversed array.
+
+Reversed days for reference:
+
+```ruby
+reversed_days = [
+  10, 1, 6, 8, 15, 9, 6, 3, 17
+# 00, 1, 2, 3, 04, 5, 6, 7, 08 <--index reference
+]
+```
+
+Our reversed `buy_sell_r` dates reflect the correct dates to sell. Wait. Crap. No. It should be `[3, 7]`, we have `[8, 1]`. How did I miss this? Ok, let's backtrack.
+
+**Debug: wrong days returning (I wrote a bad algorithm).**
+
+Ok so it turns out that my loops skip the first index 0 for the `j` loop which created the stagger, but that stagger doesn't keep on the next iteration. So when `i` is index `1` value `1`, it subtracts by itself, and when `i` is index `2` value `6`, it subtracts from index `1` value `1`, then by itself, and so on.
+
+So I need to find a way to keep staggering this so that the index `j` staggers on every loop.
+
+Ok that was an easy solve. I changed the if statement from `if j.zero?` to `if j <= i` and it worked like a dream.
+
+To prevent the last `j` index from calculating from nil, I added `if i == (reversed_days.length - 1)` to the `i` loop.
+
+<details>
+<summary>output:</summary>
+
+```ruby
+"10 - 1 = 9"
+"10 - 6 = 4"
+"10 - 8 = 2"
+"10 - 15 = -5"
+"10 - 9 = 1"
+"10 - 6 = 4"
+"10 - 3 = 7"
+"10 - 17 = -7"
+"1 - 6 = -5"
+"1 - 8 = -7"
+"1 - 15 = -14"
+"1 - 9 = -8"
+"1 - 6 = -5"
+"1 - 3 = -2"
+"1 - 17 = -16"
+"6 - 8 = -2"
+"6 - 15 = -9"
+"6 - 9 = -3"
+"6 - 6 = 0"
+"6 - 3 = 3"
+"6 - 17 = -11"
+"8 - 15 = -7"
+"8 - 9 = -1"
+"8 - 6 = 2"
+"8 - 3 = 5"
+"8 - 17 = -9"
+"15 - 9 = 6"
+"15 - 6 = 9"
+"15 - 3 = 12"
+"15 - 17 = -2"
+"9 - 6 = 3"
+"9 - 3 = 6"
+"9 - 17 = -8"
+"6 - 3 = 3"
+"6 - 17 = -11"
+"3 - 17 = -14"
+```
+
+</details>
+
+But now I'm getting a new bug:  
+scratch.rb:51:in 'Array#max': comparison of Array with nil failed (ArgumentError)
+from scratch.rb:51:in 'Object#find_days'
+
+I printed the `bigest_differences` hash and got `{0 => [9, 1], 1 => [-2, 7], 2 => [3, 7], 3 => [5, 7], 4 => [12, 7], 5 => [6, 7], 6 => [3, 7], 7 => [-14, 8], 8 => nil}`
+
+So I just need to prevent the last day being added, same problem as in the loop. I should stop this in the loop itself probably.
+
+Finally, I added `unless i == reversed_days.length - 1` after the key build step at the top of the `i` loop to prevent adding the nil sale date key/value pair to the `differences` hash which was causing another bug.
+
+**UPDATED OUTPUTS:**
+
+For reference, the output for the `differences` hash looks like this when built:
+
+```ruby
+{
+ 0 => [[9, 1], [4, 2], [2, 3], [-5, 4], [1, 5], [4, 6], [7, 7], [-7, 8]],
+ 1 => [[-5, 2], [-7, 3], [-14, 4], [-8, 5], [-5, 6], [-2, 7], [-16, 8]],
+ 2 => [[-2, 3], [-9, 4], [-3, 5], [0, 6], [3, 7], [-11, 8]],
+ 3 => [[-7, 4], [-1, 5], [2, 6], [5, 7], [-9, 8]],
+ 4 => [[6, 5], [9, 6], [12, 7], [-2, 8]],
+ 5 => [[3, 6], [6, 7], [-8, 8]],
+ 6 => [[3, 7], [-11, 8]],
+ 7 => [[-14, 8]]
+}
+```
+
+^ Honestly, this missing pattern should have immediately tipped me off.
+
+I will also revisit and update what followed that output in this doc:
+
+After experimenting with my code in scratch.rb, the below code returns my desired output:
+
+```ruby
+differences.each do |key, value|
+      # pp "values for key: #{key} and values: #{value}"
+      # pp "key: #{key} and value: #{value[0][0]}"
+    highest_day = value.max_by do |arrays| # find highest value at index 0 to find the best sell day
+      arrays[0]
+    end
+    pp "day #{key} highest sale value and day: #{highest_day}"
+    biggest_differences[key] = highest_day
+end
+
+  pp "biggest_differences hash: #{biggest_differences}"
+```
+
+output:
+
+```ruby
+"day 0 highest sale value and day: [9, 1]"
+"day 1 highest sale value and day: [-2, 7]"
+"day 2 highest sale value and day: [3, 7]"
+"day 3 highest sale value and day: [5, 7]"
+"day 4 highest sale value and day: [12, 7]"
+"day 5 highest sale value and day: [6, 7]"
+"day 6 highest sale value and day: [3, 7]"
+"day 7 highest sale value and day: [-14, 8]"
+"biggest_differences hash: {0 => [9, 1], 1 => [-2, 7], 2 => [3, 7], 3 => [5, 7], 4 => [12, 7], 5 => [6, 7], 6 => [3, 7], 7 => [-14, 8]}
+```
+
+OK!!
+
+Once again, I will revisit and update what followed that output in this doc:
+
+So now all I have to do is save whichever key/value pair has the largest value at index 0.
+
+Reference: [StackOverflow: find key by value](https://stackoverflow.com/questions/3794039/how-to-find-a-hash-key-containing-a-matching-value)
+
+Ok so I managed to figure out that I can use `#values#max` with `biggest_differences` to arrive at `[12, 7]`.
+
+I also found out I can find the key by the value, so I saved it to biggest_value and used `hash#key(biggest_value)`. No problem!
+
+Now I have the biggest value and the associated key.
+
+I pushed them to the array I made in advance using `buy_sell_r = [key_for_biggest_V, biggest_value]`
+
+But I realized that I don't need the biggest difference value in the final product, so I should only push the value at index 1.
+
+all put together:
+
+```ruby
+  biggest_value = biggest_differences.values.max
+  pp "biggest_value: #{biggest_value}"
+  # "biggest_value: [12, 7]"
+
+  sell_day = biggest_value.drop(1)
+
+  key_for_biggest_V = biggest_differences.key(biggest_value)
+  pp "key for value: #{key_for_biggest_V}"
+  # "key for value: 4"
+
+  buy_sell_r = [key_for_biggest_V, sell_day]
+  pp buy_sell_r.flatten
+  # [4, 7]
+```
+
+**Back to business**
+
+Buy/sell days arrays for reference:
+_These aren't buy/sell days really. The data displays their values at close. I should rename this to `close_values` or something._
+
+```ruby
+reversed_days = [
+  10, 1, 6, 8, 15, 9, 6, 3, 17
+# 00, 1, 2, 3, 04, 5, 6, 7, 08 <--index reference
+]
+
+days = [
+  17, 3, 6, 9, 15, 8, 6, 1, 10
+# 00, 1, 2, 3, 04, 5, 6, 7, 08 <--index reference
+  ]
+```
+
+So now I need to do some math to figure out how to reverse those numbers and deliver the 'de-reversed' indexes so that I can return them from the `days` array.
+
+I've got numbers 0 through 8 for a count of 9 numbers. I can build a new hash that lists the keys from 0 to 8 with the reverse order as the values, then return the keys that match the values, save them as an array, and return those indexes. But that seems like too much. There's got to be a formula I can use that will reverse the values. Gonna see what the mathletes have to say, if I can find anything. Ok I found something about [reverse permutations](https://www.mathwords.com/i/inverse_permutation.htm), but it is so advanced it's like reading a lost language.
+
+What if I'm overcomplicating this? What if I found the matching _values_ in the original `days` array, then returned their indexes? In other words, I can save the output as integers each in a value (such as `buy_day` and `sell_day`), then use them to find and return the matching values from `days` in a new array, which is returned as the final output of `[1,4]`? Or, did I just find a new way to overcomplicate this?
+
+Or, is this my old friend, _misplaced ambition_ trying to get me refactoring in advance and delaying a solution for a non-portfolio project from being built?
+
+Over-engineering it is!
 
 ## Struggle list / lessons learned
 
