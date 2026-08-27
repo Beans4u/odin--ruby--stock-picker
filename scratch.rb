@@ -90,7 +90,7 @@ def find_days(buy_sell_days)
     pp "this is buy_sell: #{buy_sell}"
   end
 
-  pp buy_sell
+  pp buy_sell.reverse
 
 
 end # find_days method end

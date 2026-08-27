@@ -605,8 +605,8 @@ buy_sell_r_f.each do |n|
   # "this is buy_sell: [4, 1]"
 end
 
-pp buy_sell
-# [4, 1]
+buy_sell.reverse
+# [1, 4]
 ```
 
 YEESH
@@ -615,6 +615,8 @@ Now to refactor. Along the way I also realized why the math was mathing and now 
 
 So now I'm going to refactor and separate concerns and all that.
 
+Whoopsie. I forgot to reverse it at the end. Added fix above.
+
 ## REFACTOR
 
 I might just call it here. This isn't a portfolio project and I've been here for a long while due to my break.
@@ -622,6 +624,7 @@ I might just call it here. This isn't a portfolio project and I've been here for
 Housekeeping for Future Me:
 
 - Break everything down into helper functions and create a single program that runs them, as I have with my JS projects.
+- Obviously, contain the data/state in scoped objects rather than leaving them global at the top of the `find_days` function.
 - Rename everything. This is not very idiomatic, I used a lot of placeholders that I regret using.
 - Future Me, you're smarter than I am, you'll probably look at this, cringe, then crack your knuckles and show Past Me how it's really done. Except that time is an illusion and there is no Past Me. But it will still be so satisfying, and I love that for you.
 

@@ -54,7 +54,7 @@ def find_days(buy_sell_days)
     buy_sell << shifted_day
   end
 
-  buy_sell
+  buy_sell.reverse
 end # find_days method end
 
 stock_advice = find_days(days)
