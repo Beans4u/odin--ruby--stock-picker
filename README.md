@@ -17,3 +17,9 @@ e.g.
 
 **Constraints:**  
 Must buy before selling.
+
+**See:**
+
+- [stock_picker](./stock_picker.rb) for 'final' project (requires refactor)
+- [DEV_LOG](./DEV_LOG.md) for my stream-of-consciousness thought process written in my own loose dialect (will hurt your brain)
+- [scratch](./scratch.rb) playground, loose construction record (will hurt your eyes)
