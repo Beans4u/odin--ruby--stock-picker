@@ -7,7 +7,7 @@ def find_days(buy_sell_days)
   differences = {} # save the difference between the next sell date with the current sale date
   biggest_differences = {}
   buy_sell_r = []
-  # buy_sell = []
+  buy_sell = []
 
   # + + + + + REVERSED DAYS ARRAY LOOP + + + + + +
 
@@ -50,20 +50,52 @@ def find_days(buy_sell_days)
   # pp "biggest_differences hash: #{biggest_differences}"
 
   biggest_value = biggest_differences.values.max
-  pp "biggest_value: #{biggest_value}"
+  # pp "biggest_value: #{biggest_value}"
 
   sell_day = biggest_value.drop(1)
 
-  key_for_biggest_V = biggest_differences.key(biggest_value)
-  pp "key for value: #{key_for_biggest_V}"
+  key_for_biggest_v = biggest_differences.key(biggest_value)
+  # pp "key for value: #{key_for_biggest_V}"
+  # pp "key_for_biggest_v type is Integer?: #{key_for_biggest_v.is_a?(Integer)}"
+  # pp "biggest_differences type is Array?: #{sell_day.is_a?(Array)}"
+  buy_sell_r = [key_for_biggest_v, sell_day]
+  buy_sell_r_f = buy_sell_r.flatten
+  # pp buy_sell_r.flatten
+  # pp "buy sell r type is Array?: #{buy_sell_r.is_a?(Array)}"
+  
 
-  buy_sell_r = [key_for_biggest_V, sell_day]
-  pp buy_sell_r.flatten
+  # + + + RETURN BUY/SELL DAYS INDEXES TO ORIGINAL ORDER + + + +
+  pp "reversed days: #{reversed_days}"
 
-  # + + + Return the correct days (indexes) from the original array + + + +
-  # pp "reversed days: #{reversed_days}"
+  # buy_day_r = buy_sell_r[1] #reversed, so the buy day is after the sell day
+  # sell_day_r = buy_sell_r[0]
+  # pp "buy day value: #{buy_day_r} and sell day value: #{sell_day_r}"
+
+  # pp reversed_days.find_index {|e| e == buy_day_r}
+
+  # pp days.select{|i| i == buy_day_r}
+ 
+
+  total_days = (reversed_days.length - 1)
+  # pp "total days: #{total_days}"
+
+  buy_sell_r_f.each do |n|
+    # pp "this is buy_sell_r_f: #{buy_sell_r_f}"
+    pp "this n is: #{n}"
+    # pp "n type is Array?: #{n.is_a?(Array)}"
+    shifted_day = (total_days - n)
+    pp "shifted day: #{shifted_day}"
+
+    buy_sell << shifted_day
+    pp "this is buy_sell: #{buy_sell}"
+  end
+
+  pp buy_sell
+
 
 end # find_days method end
+
+find_days(days)
 
 #### old
   # max_value = differences.max_by do |k, v|
@@ -76,32 +108,29 @@ end # find_days method end
   #   i.find_max
   # end
 
-
-find_days(days)
-
 #### Pairs experiment, doesn't work because I can't add them to the hash the way I want to
 #   pairs = []
 #   reversed_days.combination(2) {|combo| pairs.push(combo)}
 # p pairs
 
 #### Arrays playground - multidimentional arrays refresher
-find_the_highest = [[1, 2], [2, 3], [6, 4], [8, -1]]
+# find_the_highest = [[1, 2], [2, 3], [6, 4], [8, -1]]
 
-# pp "find the highest: #{find_the_highest[3]}"
+# # pp "find the highest: #{find_the_highest[3]}"
 
-numbers = [[10, 20], [30, 40], [50, 60]]
+# numbers = [[10, 20], [30, 40], [50, 60]]
 
-numbers.each do |number|
-  number[1]
-end
+# numbers.each do |number|
+#   number[1]
+# end
 
-numbers.map do |number|
-  number[0]
-end
+# numbers.map do |number|
+#   number[0]
+# end
 
-highest = find_the_highest.map do |pair|
-  result = []
-  result << pair[0]
-end
+# highest = find_the_highest.map do |pair|
+#   result = []
+#   result << pair[0]
+# end
 
-highest.max
+# highest.max

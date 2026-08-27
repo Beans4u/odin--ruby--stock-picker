@@ -506,11 +506,126 @@ So now I need to do some math to figure out how to reverse those numbers and del
 
 I've got numbers 0 through 8 for a count of 9 numbers. I can build a new hash that lists the keys from 0 to 8 with the reverse order as the values, then return the keys that match the values, save them as an array, and return those indexes. But that seems like too much. There's got to be a formula I can use that will reverse the values. Gonna see what the mathletes have to say, if I can find anything. Ok I found something about [reverse permutations](https://www.mathwords.com/i/inverse_permutation.htm), but it is so advanced it's like reading a lost language.
 
-What if I'm overcomplicating this? What if I found the matching _values_ in the original `days` array, then returned their indexes? In other words, I can save the output as integers each in a value (such as `buy_day` and `sell_day`), then use them to find and return the matching values from `days` in a new array, which is returned as the final output of `[1,4]`? Or, did I just find a new way to overcomplicate this?
+What if I'm overcomplicating this? What if I found the matching _values_ in the original `days` array, then returned their indexes? In other words, I can save the output as integers each in a value (such as `buy_day` and `sell_day`), then use them to find and return the matching values from `days` in a new array, which is returned as the final output of `[1,4]`? Or, did I just find a new way to overcomplicate this? I should probably have realized sooner that this won't work if there are duplicate values.
 
 Or, is this my old friend, _misplaced ambition_ trying to get me refactoring in advance and delaying a solution for a non-portfolio project from being built?
 
 Over-engineering it is!
+
+But no, I really feel like math should solve this. I have nine numbers. Reversed is 4, 7, original is 1, 4.
+
+4, 7
+1, 4
+
+4 - 1 is 3,
+7 - 4 is 3
+
+Would this work if I just used another calculation to find the difference between the matching values--- wait if I'm going to go that far, I might as well just used the matched values to return those indexes, so over-engineering it is.
+
+Huzzah.
+
+I still feel like I'm missing something really obvious.
+
+So to reverse it, I'm going to go ahead and make those variables.
+
+Wait. I'm still not over the math thing. What if I try using #Array.length to find the length of `reversed_days` and then subtract the length by the index?
+
+Let me think about this...
+
+length is 9
+so I have 4, 7, and `reversed_days.length` is 9.
+
+9 - 7 is 2
+9 - 4 is 5
+
+so would I have to subtract from 8 then? It feels weird not to count 0. But we're using 0 as one of the days, so I guess it fits? Or am I confusing myself. For a sanity check, I checked reversed_days.length in the terminal. Checks out, it's 9. My brain isn't broken. If the math is mathing, then I need another coffee or a brain break or both.
+
+So I'll assume the correct formula here is:
+
+```ruby
+total_days = (reversed_days.length - 1)
+# 8
+```
+
+Peachy. So that leaves us with:
+
+```ruby
+  total_days = (reversed_days.length - 1)
+  pp "total days: #{total_days}"
+  # total_days: 8
+
+  buy_sell = buy_sell_r.map do |n|
+    pp "n is: #{n}"
+    # "n is: 4"
+    # "n is: [7]"
+
+    pp "n type: #{n.is_a?(Integer)}"
+    # "n type: true"
+    # "n type: false"
+
+    shifted_day = total_days - n
+
+    pp "shifted day: #{shifted_day}"
+    # "shifted day: 4"
+    # scratch.rb:81:in 'Integer#-': Array can't be coerced into Integer (TypeError)
+    #     shifted_day = total_days - n
+
+    buy_sell << shifted_day
+  end
+
+  pp buy_sell
+```
+
+So for some reason, `buy_sell_r` (`[4, 7]`) stored 4 as an int and 7 as an arr, even though both are stored in a single array.
+
+I had noticed this earlier but my attempts to convert them failed, but since it was still working, I decided to give up on it. But not it is not working.
+
+I checked the variables that built `buy_sell_r`, and `key_for_biggest_v` is an int, `sell_day` is an arr. I attempted to convert them, but no dice. I checked `buy_sell_r` and it is an Array.
+
+I think what is happening is I am seeing `[4, 7]`, but it is actually `[4,[7]]`. I saved it to a new array with flatten and I no longer have this problem.
+
+I got it.
+
+```ruby
+total_days = (reversed_days.length - 1)
+
+buy_sell_r_f.each do |n|
+  pp "this n is: #{n}"
+  # "this n is: 4"
+  # "this n is: 7"
+
+  shifted_day = (total_days - n)
+  pp "shifted day: #{shifted_day}"
+  # "shifted day: 4"
+  # "shifted day: 1"
+
+  buy_sell << shifted_day
+  pp "this is buy_sell: #{buy_sell}"
+  # "this is buy_sell: [4]"
+  # "this is buy_sell: [4, 1]"
+end
+
+pp buy_sell
+# [4, 1]
+```
+
+YEESH
+
+Now to refactor. Along the way I also realized why the math was mathing and now I feel silly.
+
+So now I'm going to refactor and separate concerns and all that.
+
+## REFACTOR
+
+I might just call it here. This isn't a portfolio project and I've been here for a long while due to my break.
+
+Housekeeping for Future Me:
+
+- Break everything down into helper functions and create a single program that runs them, as I have with my JS projects.
+- Rename everything. This is not very idiomatic, I used a lot of placeholders that I regret using.
+- Future Me, you're smarter than I am, you'll probably look at this, cringe, then crack your knuckles and show Past Me how it's really done. Except that time is an illusion and there is no Past Me. But it will still be so satisfying, and I love that for you.
+
+Well, that's all for now, folks!
 
 ## Struggle list / lessons learned
 
@@ -524,4 +639,6 @@ Over-engineering it is!
 - trouble iterating over a hash to find the largest key. Have to iterate through the keys, then within each hash key, iterate over each value's array of nested arrays. I struggled to conceptualize nested loops even though I know I've handled them before in JS. Haven't I? Or did I just read about it?
   -- resource: [iterate through values](https://nelson.cloud/iterating-through-hashes-in-ruby/#iterating-through-values)
 - Returning the entire nested array with the biggest value at index 0 - use `#max_by`. I was simply getting only the index 0s before I realized that `#max_by` can grab the whole thing based on an arguemnt. e.g. `value.max_by do { |arrays| array[0] }` will compare each nested array by their index 0s. _Huzzah!_
--
+- Learned I need to pay attention to data types as I'm saving them to variables to use as arguments when building arrays, or it can cause silent errors. In this case, one was an int, the other an arr, and I wound up with a nested value in the output.
+- I can math without help. I know my math skills aren't as bad as I jest. Regardless, I couldn't find a solution, but I kept at it and I realized that I can shift them, remembering the caesar's cipher project from day's past.
+- **unresolved**: still can't figure out why I can't convert an array to an int when there's only a single value in the array. Maybe it just doesn't work that way.
